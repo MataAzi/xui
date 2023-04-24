@@ -217,8 +217,8 @@ export class X3UI {
       (await this.axios.post(`/xui/inbound/delClient/${email}`, encodedData))
         .data
     );
-    if (!result.success) return false;
-    return true;
+    if (!result.success) return { ok: false };
+    return { ok: true };
   }
 
   public async getClientStatsByUuid(inboundId: number, uuid: string) {
