@@ -3,7 +3,7 @@ import formUrlEncoded from "form-urlencoded";
 import { IAddInbound } from "./interfaces/IAddInbound";
 import { ISetting, IStreamSetting } from "./interfaces/ISetting";
 import crypto from "crypto";
-import { IInboundList, Obj } from "./interfaces/Inbound";
+import { IInboundList } from "./interfaces/Inbound";
 
 /**
  * Completable with https://github.com/MHSanaei/3x-ui/
