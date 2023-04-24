@@ -25,5 +25,13 @@
   },
   "devDependencies": {
     "@types/node": "^18.16.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MataAzi/xui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MataAzi/xui/issues"
+  },
+  "homepage": "https://github.com/MataAzi/xui#readme"
 }
