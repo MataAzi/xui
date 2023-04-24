@@ -76,7 +76,7 @@ export class X3UI {
         wsSettings: {
           acceptProxyProtocol: false,
           headers: {},
-          path: "/",
+          path: inboundData.wsPath,
         },
       };
 
@@ -347,6 +347,7 @@ export interface ICreateInbound {
   remark?: string;
   port: number;
   protocol: Protocol;
+  wsPath: string;
 }
 
 export interface IClient {
