@@ -1,8 +1,9 @@
 {
-  "name": "@mat/xui",
+  "name": "@matazi/xui",
   "version": "1.0.0",
   "description": "x-ui api handler",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "yarn dev"
   },
