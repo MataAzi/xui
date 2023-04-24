@@ -247,12 +247,12 @@ export class X3UI {
 
   public generateLink(
     client: IClient,
-    protocol: IProtocol,
+    protocol: Protocol,
     host: string,
     port: number,
     requestHost?: string
   ) {
-    if (protocol === IProtocol.VLESS)
+    if (protocol === Protocol.VLESS)
       this.vlessGenerator(client, host, port, requestHost);
     else this.vmessGenerator(client, host, port, requestHost);
   }
@@ -325,7 +325,7 @@ export interface IPanelCredentials {
   password: string;
 }
 
-export interface IVmess {
+interface IVmess {
   v: string;
   ps: string;
   add: string;
@@ -346,12 +346,7 @@ export interface IVmess {
 export interface ICreateInbound {
   remark?: string;
   port: number;
-  protocol: IProtocol;
-}
-
-export enum Protocol {
-  Vmess = "vmess",
-  Vless = "vless",
+  protocol: Protocol;
 }
 
 export interface IClient {
@@ -366,7 +361,7 @@ export interface IClient {
   subId: string;
 }
 
-export enum IProtocol {
+export enum Protocol {
   VMESS = "vmess",
   VLESS = "vless",
 }

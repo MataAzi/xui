@@ -1,4 +1,4 @@
-import { IProtocol } from "./IProtocol";
+import { Protocol } from "..";
 import { ISetting, IStreamSetting } from "./ISetting";
 
 export interface IAddInbound {
@@ -10,7 +10,7 @@ export interface IAddInbound {
   expiryTime: number;
   listen: string;
   port: number;
-  protocol: IProtocol;
+  protocol: Protocol;
   settings: string;
   streamSettings: string;
   sniffing: boolean;
