@@ -253,8 +253,8 @@ export class X3UI {
     requestHost?: string
   ) {
     if (protocol === Protocol.VLESS)
-      this.vlessGenerator(client, host, port, requestHost);
-    else this.vmessGenerator(client, host, port, requestHost);
+      return this.vlessGenerator(client, host, port, requestHost);
+    else return this.vmessGenerator(client, host, port, requestHost);
   }
 
   private vlessGenerator(
