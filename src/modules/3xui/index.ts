@@ -122,127 +122,150 @@ export class X3UI {
   }
 
   public async getInboundIdByPort(port: number) {
-    // Get All inbounds
-    const inbounds = await this.getAllInbounds();
-    // Return false on error
-    if (!inbounds.ok) return { ok: false };
-    // Get specific inbound by port
-    const specificInbound = inbounds.data?.find((x) => x.port === port);
-    // Return false on no specific inbound
-    if (!specificInbound) return { ok: false };
-    // return Inbound id
-    return { ok: true, data: specificInbound.id };
+    try {
+      // Get All inbounds
+      const inbounds = await this.getAllInbounds();
+      // Return false on error
+      if (!inbounds.ok) return { ok: false };
+      // Get specific inbound by port
+      const specificInbound = inbounds.data?.find((x) => x.port === port);
+      // Return false on no specific inbound
+      if (!specificInbound) return { ok: false };
+      // return Inbound id
+      return { ok: true, data: specificInbound.id };
+    } catch {
+      return { ok: false };
+    }
   }
 
   public async createClient(
     inboundId: number,
     clientData: IClient
   ): Promise<boolean> {
-    // Set Data and convert GB to Bytes
-    const data = {
-      id: inboundId,
-      settings: JSON.stringify({
-        clients: [{ ...clientData, totalGB: gbToBytes(clientData.totalGB) }],
-      }),
-    };
-    // form url encode the object
-    const encoded = formUrlEncoded(data);
-    // post data
-    const result = <IResult>(
-      (await this.axios.post("/xui/inbound/addClient", encoded)).data
-    );
-    if (result.success) return true;
-    return false;
+    try {
+      // Set Data and convert GB to Bytes
+      const data = {
+        id: inboundId,
+        settings: JSON.stringify({
+          clients: [{ ...clientData, totalGB: gbToBytes(clientData.totalGB) }],
+        }),
+      };
+      // form url encode the object
+      const encoded = formUrlEncoded(data);
+      // post data
+      const result = <IResult>(
+        (await this.axios.post("/xui/inbound/addClient", encoded)).data
+      );
+      if (result.success) return true;
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   public async updateClient(inboundId: number, uuid: string, data: IClient) {
-    // Fix gb to byte
-    const client = this.fixClient(data);
-    // Get all inbounds
-    const inbounds = await this.getAllInbounds();
-    if (!inbounds.data)
-      return {
-        ok: false,
-        msg: "cannot get all inbounds, maybe network error or bad x-ui database",
-      };
-    // Find specific inbound
-    const specificInbound = inbounds.data.find((x) => x.id === inboundId);
-    if (!specificInbound) return { ok: false, msg: "inbound not found" };
-    // Parse setting as json
-    const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
-    // Find client with the same uuid
-    const clientId = parsedSetting.clients.findIndex((x) => x.id === uuid);
-    //
-    if (clientId === -1)
-      return { ok: false, msg: "Cannot find specific client in that inbound" };
-    const encodedData = formUrlEncoded({
-      id: inboundId,
-      settings: JSON.stringify({ clients: [{ ...client }] }),
-    });
-    const result = <IResult>(
-      (
-        await this.axios.post(
-          `/xui/inbound/updateClient/${clientId}`,
-          encodedData
-        )
-      ).data
-    );
-    if (!result.success) return { ok: false, msg: "cannot update client" };
-    return { ok: true };
+    try {
+      // Fix gb to byte
+      const client = this.fixClient(data);
+      // Get all inbounds
+      const inbounds = await this.getAllInbounds();
+      if (!inbounds.data)
+        return {
+          ok: false,
+          msg: "cannot get all inbounds, maybe network error or bad x-ui database",
+        };
+      // Find specific inbound
+      const specificInbound = inbounds.data.find((x) => x.id === inboundId);
+      if (!specificInbound) return { ok: false, msg: "inbound not found" };
+      // Parse setting as json
+      const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
+      // Find client with the same uuid
+      const clientId = parsedSetting.clients.findIndex((x) => x.id === uuid);
+      //
+      if (clientId === -1)
+        return {
+          ok: false,
+          msg: "Cannot find specific client in that inbound",
+        };
+      const encodedData = formUrlEncoded({
+        id: inboundId,
+        settings: JSON.stringify({ clients: [{ ...client }] }),
+      });
+      const result = <IResult>(
+        (
+          await this.axios.post(
+            `/xui/inbound/updateClient/${clientId}`,
+            encodedData
+          )
+        ).data
+      );
+      if (!result.success) return { ok: false, msg: "cannot update client" };
+      return { ok: true };
+    } catch {
+      return { ok: false };
+    }
   }
 
   public async deleteClient(inboundId: number, uuid: string) {
-    // Get all inbounds
-    const inbounds = await this.getAllInbounds();
-    if (!inbounds.data)
-      return {
-        ok: false,
-        msg: "cannot get all inbounds, maybe network error or bad x-ui database",
-      };
-    // Find specific inbound
-    const specificInbound = inbounds.data.find((x) => x.id === inboundId);
-    if (!specificInbound) return { ok: false, msg: "inbound not found" };
-    // Parse setting as json
-    const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
-    // Find client email by uuid
-    const email = parsedSetting.clients.find((x) => x.id === uuid)?.email;
-    if (!email) return { ok: false, msg: "Client not found" };
-    // filter clients
-    const clients = parsedSetting.clients.filter((x) => x.id !== uuid);
-    const encodedData = formUrlEncoded({
-      id: inboundId,
-      settings: JSON.stringify({ clients: [...clients] }),
-    });
-    const result = <IResult>(
-      (await this.axios.post(`/xui/inbound/delClient/${email}`, encodedData))
-        .data
-    );
-    if (!result.success) return { ok: false };
-    return { ok: true };
+    try {
+      // Get all inbounds
+      const inbounds = await this.getAllInbounds();
+      if (!inbounds.data)
+        return {
+          ok: false,
+          msg: "cannot get all inbounds, maybe network error or bad x-ui database",
+        };
+      // Find specific inbound
+      const specificInbound = inbounds.data.find((x) => x.id === inboundId);
+      if (!specificInbound) return { ok: false, msg: "inbound not found" };
+      // Parse setting as json
+      const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
+      // Find client email by uuid
+      const email = parsedSetting.clients.find((x) => x.id === uuid)?.email;
+      if (!email) return { ok: false, msg: "Client not found" };
+      // filter clients
+      const clients = parsedSetting.clients.filter((x) => x.id !== uuid);
+      const encodedData = formUrlEncoded({
+        id: inboundId,
+        settings: JSON.stringify({ clients: [...clients] }),
+      });
+      const result = <IResult>(
+        (await this.axios.post(`/xui/inbound/delClient/${email}`, encodedData))
+          .data
+      );
+      if (!result.success) return { ok: false };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false };
+    }
   }
 
   public async getClientStatsByUuid(inboundId: number, uuid: string) {
-    // Get all inbounds
-    const inbounds = await this.getAllInbounds();
-    if (!inbounds.data)
-      return {
-        ok: false,
-        msg: "cannot get all inbounds, maybe network error or bad x-ui database",
-      };
-    // Find specific inbound
-    const specificInbound = inbounds.data.find((x) => x.id === inboundId);
-    if (!specificInbound) return { ok: false, msg: "inbound not found" };
-    // Parse setting as json
-    const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
-    // Find client with the same uuid
-    const client = parsedSetting.clients.find((x) => x.id === uuid);
-    if (!client) return { ok: false, msg: "client not found" };
-    // Find stats by email
-    const stats = specificInbound.clientStats.find(
-      (x) => x.email === client.email
-    );
-    if (!stats) return { ok: false, msg: "client has no statics" };
-    return { ok: true, data: stats };
+    try {
+      // Get all inbounds
+      const inbounds = await this.getAllInbounds();
+      if (!inbounds.data)
+        return {
+          ok: false,
+          msg: "cannot get all inbounds, maybe network error or bad x-ui database",
+        };
+      // Find specific inbound
+      const specificInbound = inbounds.data.find((x) => x.id === inboundId);
+      if (!specificInbound) return { ok: false, msg: "inbound not found" };
+      // Parse setting as json
+      const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
+      // Find client with the same uuid
+      const client = parsedSetting.clients.find((x) => x.id === uuid);
+      if (!client) return { ok: false, msg: "client not found" };
+      // Find stats by email
+      const stats = specificInbound.clientStats.find(
+        (x) => x.email === client.email
+      );
+      if (!stats) return { ok: false, msg: "client has no statics" };
+      return { ok: true, data: stats };
+    } catch {
+      return { ok: false };
+    }
   }
 
   public generateLink(
