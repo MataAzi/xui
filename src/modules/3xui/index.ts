@@ -251,11 +251,13 @@ export class X3UI {
     host: string,
     port: number,
     path: string,
+    hasTls = false,
     requestHost?: string
   ) {
     if (protocol === Protocol.VLESS)
-      return this.vlessGenerator(client, host, port, path, requestHost);
-    else return this.vmessGenerator(client, host, port, path, requestHost);
+      return this.vlessGenerator(client, host, port, path, hasTls, requestHost);
+    else
+      return this.vmessGenerator(client, host, port, path, hasTls, requestHost);
   }
 
   private vlessGenerator(
@@ -263,6 +265,7 @@ export class X3UI {
     host: string,
     port: number,
     path: string,
+    hasTls = false,
     requestHost?: string
   ) {
     return `vless://${client.id}@${host}:${port}?type=ws&path=${path}${
@@ -275,6 +278,7 @@ export class X3UI {
     host: string,
     port: number,
     path: string,
+    hasTls = false,
     requestHost?: string
   ) {
     const data: IVmess = {
@@ -287,7 +291,7 @@ export class X3UI {
       type: "none",
       host: requestHost ?? "",
       path,
-      tls: "tls",
+      tls: hasTls ? "tls" : "none",
       port,
       allowInsecure: false,
       alpn: "",
