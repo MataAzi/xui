@@ -1,6 +1,6 @@
 {
   "name": "@matazi/xui",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "x-ui api handler",
   "main": "index.js",
   "types": "index.d.ts",
