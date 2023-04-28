@@ -205,33 +205,11 @@ export class X3UI {
 
   public async deleteClient(inboundId: number, uuid: string) {
     try {
-      // Get all inbounds
-      const inbounds = await this.getAllInbounds();
-      if (!inbounds.data)
-        return {
-          ok: false,
-          msg: "cannot get all inbounds, maybe network error or bad x-ui database",
-        };
-      // Find specific inbound
-      const specificInbound = inbounds.data.find((x) => x.id === inboundId);
-      if (!specificInbound) return { ok: false, msg: "inbound not found" };
-      // Parse setting as json
-      const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
-      // Find client email by uuid
-      const email = parsedSetting.clients.find((x) => x.id === uuid)?.email;
-      if (!email) return { ok: false, msg: "Client not found" };
-      // filter clients
-      const clients = parsedSetting.clients.filter((x) => x.id !== uuid);
-      const encodedData = formUrlEncoded({
-        id: inboundId,
-        settings: JSON.stringify({ clients: [...clients] }),
-      });
-      const result = <IResult>(
-        (await this.axios.post(`/xui/inbound/delClient/${email}`, encodedData))
-          .data
+      const result = await this.axios.post(
+        `/xui/inbound/${inboundId}/delClient/${uuid}`
       );
-      if (!result.success) return { ok: false, msg: result };
-      return { ok: true };
+      if (result.data.success) return { ok: true };
+      else return { ok: false, msg: 'Unspecific error' };
     } catch (e) {
       return { ok: false, msg: e };
     }
