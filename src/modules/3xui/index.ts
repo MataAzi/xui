@@ -20,7 +20,7 @@ export class X3UI {
     this.remark = remark;
   }
 
-  public async login(): Promise<boolean> {
+  public async login() {
     try {
       // Set Data
       const data = {
@@ -33,15 +33,15 @@ export class X3UI {
       const loginResult = await this.axios.post("/login", encodedData);
       // Check The Result Of login
       if (!loginResult.data.success) {
-        return false;
+        return { ok: false, msg: "username or password wrong" };
       }
       // Set Cookie For Authentication
       this.axios.defaults.headers.common["Cookie"] =
         loginResult.headers["set-cookie"];
 
-      return true;
+      return { ok: true };
     } catch (e) {
-      return false;
+      return { ok: false, msg: e };
     }
   }
 
@@ -104,10 +104,10 @@ export class X3UI {
           .data
       );
       // Check If Result is success
-      if (result.success) return true;
-      return false;
+      if (result.success) return { ok: true };
+      return { ok: false };
     } catch (e) {
-      return false;
+      return { ok: false, msg: e };
     }
   }
 
@@ -133,15 +133,12 @@ export class X3UI {
       if (!specificInbound) return { ok: false };
       // return Inbound id
       return { ok: true, data: specificInbound.id };
-    } catch {
-      return { ok: false };
+    } catch (e) {
+      return { ok: false, msg: e };
     }
   }
 
-  public async createClient(
-    inboundId: number,
-    clientData: IClient
-  ): Promise<boolean> {
+  public async createClient(inboundId: number, clientData: IClient) {
     try {
       // Set Data and convert GB to Bytes
       const data = {
@@ -156,10 +153,10 @@ export class X3UI {
       const result = <IResult>(
         (await this.axios.post("/xui/inbound/addClient", encoded)).data
       );
-      if (result.success) return true;
-      return false;
-    } catch {
-      return false;
+      if (result.success) return { ok: true };
+      return { ok: false };
+    } catch (e) {
+      return { ok: false, msg: e };
     }
   }
 
@@ -201,8 +198,8 @@ export class X3UI {
       );
       if (!result.success) return { ok: false, msg: "cannot update client" };
       return { ok: true };
-    } catch {
-      return { ok: false };
+    } catch (e) {
+      return { ok: false, msg: e };
     }
   }
 
@@ -233,10 +230,10 @@ export class X3UI {
         (await this.axios.post(`/xui/inbound/delClient/${email}`, encodedData))
           .data
       );
-      if (!result.success) return { ok: false };
+      if (!result.success) return { ok: false, msg: result };
       return { ok: true };
     } catch (e) {
-      return { ok: false };
+      return { ok: false, msg: e };
     }
   }
 
@@ -263,8 +260,8 @@ export class X3UI {
       );
       if (!stats) return { ok: false, msg: "client has no statics" };
       return { ok: true, data: stats };
-    } catch {
-      return { ok: false };
+    } catch (e) {
+      return { ok: false, msg: e };
     }
   }
 
