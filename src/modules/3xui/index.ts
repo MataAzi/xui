@@ -95,7 +95,7 @@ export class X3UI {
         settings: JSON.stringify(setting),
         // Stringify streamSetting object
         streamSettings: JSON.stringify(streamSettings),
-        sniffing: true,
+        sniffing: JSON.stringify({ enabled: true, destOverride: ["http", "tls"] }),
       };
 
       // Post inbound data formUrlEncoded
@@ -209,7 +209,7 @@ export class X3UI {
         `/xui/inbound/${inboundId}/delClient/${uuid}`
       );
       if (result.data.success) return { ok: true };
-      else return { ok: false, msg: 'Unspecific error' };
+      else return { ok: false, msg: "Unspecific error" };
     } catch (e) {
       return { ok: false, msg: e };
     }

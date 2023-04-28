@@ -13,7 +13,7 @@ export interface IAddInbound {
   protocol: Protocol;
   settings: string;
   streamSettings: string;
-  sniffing: boolean;
+  sniffing: string;
 }
 
 export interface IAddClient {
