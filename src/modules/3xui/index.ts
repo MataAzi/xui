@@ -47,26 +47,10 @@ export class X3UI {
 
   public async createInbound(inboundData: ICreateInbound) {
     try {
+      let inbound: IAddInbound;
       // Destruct inboundData
+
       const { port, protocol, remark = this.remark } = inboundData;
-      // Create Setting Object
-      // Client Is Disabled And it's Just for creating inbound
-      const setting: ISetting = {
-        clients: [
-          {
-            id: crypto.randomUUID(),
-            alterId: 0,
-            email: generateRandomString(10),
-            enable: false,
-            expiryTime: new Date().getTime(),
-            limitIp: 1,
-            totalGB: 1,
-            subId: "",
-            tgId: "",
-          },
-        ],
-        disableInsecureEncryption: false,
-      };
 
       // Create stream setting 'ws'
       // TODO : Improve This To Handle http / quick and ...
@@ -79,24 +63,86 @@ export class X3UI {
           path: inboundData.wsPath,
         },
       };
+      // Create Setting Object
+      // Client Is Disabled And it's Just for creating inbound
+      if (protocol === Protocol.VMESS) {
+        const setting: ISetting = {
+          clients: [
+            {
+              id: crypto.randomUUID(),
+              alterId: 0,
+              email: generateRandomString(10),
+              enable: false,
+              expiryTime: new Date().getTime(),
+              limitIp: 1,
+              totalGB: 1,
+              subId: "",
+              tgId: "",
+            },
+          ],
+          disableInsecureEncryption: false,
+        };
 
-      // Create inbound obj
-      const inbound: IAddInbound = {
-        enable: true,
-        down: 0,
-        total: 0,
-        up: 0,
-        expiryTime: 0,
-        listen: "",
-        port,
-        protocol,
-        remark,
-        // Stringify setting object
-        settings: JSON.stringify(setting),
-        // Stringify streamSetting object
-        streamSettings: JSON.stringify(streamSettings),
-        sniffing: JSON.stringify({ enabled: true, destOverride: ["http", "tls"] }),
-      };
+        // Create inbound obj
+        inbound = {
+          enable: true,
+          down: 0,
+          total: 0,
+          up: 0,
+          expiryTime: 0,
+          listen: "",
+          port,
+          protocol,
+          remark,
+          // Stringify setting object
+          settings: JSON.stringify(setting),
+          // Stringify streamSetting object
+          streamSettings: JSON.stringify(streamSettings),
+          sniffing: JSON.stringify({
+            enabled: true,
+            destOverride: ["http", "tls"],
+          }),
+        };
+      } else {
+        const setting: ISetting = {
+          clients: [
+            {
+              id: crypto.randomUUID(),
+              alterId: 0,
+              email: generateRandomString(10),
+              enable: false,
+              expiryTime: new Date().getTime(),
+              limitIp: 1,
+              totalGB: 1,
+              subId: "",
+              tgId: "",
+            },
+          ],
+          decryption: "none",
+          fallbacks: [],
+        };
+
+        // Create inbound obj
+        inbound = {
+          enable: true,
+          down: 0,
+          total: 0,
+          up: 0,
+          expiryTime: 0,
+          listen: "",
+          port,
+          protocol,
+          remark,
+          // Stringify setting object
+          settings: JSON.stringify(setting),
+          // Stringify streamSetting object
+          streamSettings: JSON.stringify(streamSettings),
+          sniffing: JSON.stringify({
+            enabled: true,
+            destOverride: ["http", "tls"],
+          }),
+        };
+      }
 
       // Post inbound data formUrlEncoded
       const result = <IResult>(
@@ -105,7 +151,6 @@ export class X3UI {
       );
       // Check If Result is success
       if (result.success) return { ok: true };
-      return { ok: false };
     } catch (e) {
       return { ok: false, msg: e };
     }
@@ -210,6 +255,29 @@ export class X3UI {
       );
       if (result.data.success) return { ok: true };
       else return { ok: false, msg: "Unspecific error" };
+    } catch (e) {
+      return { ok: false, msg: e };
+    }
+  }
+
+  public async getClient(inboundId: number, uuid: string) {
+    try {
+      // Get all inbounds
+      const inbounds = await this.getAllInbounds();
+      if (!inbounds.data)
+        return {
+          ok: false,
+          msg: "cannot get all inbounds, maybe network error or bad x-ui database",
+        };
+      // Find specific inbound
+      const specificInbound = inbounds.data.find((x) => x.id === inboundId);
+      if (!specificInbound) return { ok: false, msg: "inbound not found" };
+      // Parse setting as json
+      const parsedSetting = <ISetting>JSON.parse(specificInbound?.settings);
+      // Find client with the same uuid
+      const client = parsedSetting.clients.find((x) => x.id === uuid);
+      if (!client) return { ok: false, msg: "client not found" };
+      return { ok: true, data: client };
     } catch (e) {
       return { ok: false, msg: e };
     }

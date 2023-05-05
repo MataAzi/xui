@@ -1,6 +1,8 @@
 export interface ISetting {
   clients: Client[];
-  disableInsecureEncryption: boolean;
+  disableInsecureEncryption?: boolean;
+  decryption?: string;
+  fallbacks?: [];
 }
 
 export interface Client {
