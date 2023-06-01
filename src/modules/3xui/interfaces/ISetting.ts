@@ -16,17 +16,3 @@ export interface Client {
   tgId: string;
   subId: string;
 }
-
-export interface IStreamSetting {
-  network: string;
-  security: string;
-  wsSettings: WsSettings;
-}
-
-export interface WsSettings {
-  acceptProxyProtocol: boolean;
-  path: string;
-  headers: Headers;
-}
-
-export interface Headers {}

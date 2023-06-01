@@ -1,9 +1,10 @@
 import axiosI, { AxiosInstance } from "axios";
 import formUrlEncoded from "form-urlencoded";
 import { IAddInbound } from "./interfaces/IAddInbound";
-import { ISetting, IStreamSetting } from "./interfaces/ISetting";
+import { ISetting } from "./interfaces/ISetting";
 import crypto from "crypto";
 import { IInboundList } from "./interfaces/Inbound";
+import { IReallityStream, IWSStreamSetting } from "./interfaces/IStreamSetting";
 
 /**
  * Completable with https://github.com/MHSanaei/3x-ui/
@@ -45,24 +46,49 @@ export class X3UI {
     }
   }
 
-  public async createInbound(inboundData: ICreateInbound) {
+  public async createInbound(inboundData: ICreateInbound, type: StreamType) {
     try {
       let inbound: IAddInbound;
       // Destruct inboundData
 
       const { port, protocol, remark = this.remark } = inboundData;
 
+      let streamSettings: IWSStreamSetting | IReallityStream;
       // Create stream setting 'ws'
       // TODO : Improve This To Handle http / quick and ...
-      const streamSettings: IStreamSetting = {
-        network: "ws",
-        security: "none",
-        wsSettings: {
-          acceptProxyProtocol: false,
-          headers: {},
-          path: inboundData.wsPath,
-        },
-      };
+      if (type === StreamType.ws)
+        streamSettings = {
+          network: "ws",
+          security: "none",
+          wsSettings: {
+            acceptProxyProtocol: false,
+            headers: {},
+            path: inboundData.wsPath,
+          },
+        };
+      else if (type === StreamType.reality) {
+        streamSettings = {
+          network: "tcp",
+          security: "reality",
+          realitySettings: {
+            show: false,
+            xver: 0,
+            dest: "zula.ir:443",
+            serverNames: ["zula.ir", "www.zula.ir"],
+            privateKey: "mM54nqp8x8L6J4VkJqwFEF-vINDVGTCYlGvhRmXMxXg",
+            minClient: "",
+            maxClient: "",
+            maxTimediff: 0,
+            shortIds: ["1f5529d6"],
+            settings: {
+              publicKey: "JviAOhjc4r3k7fM6FHKrZu0rm3DodPh-kMJeOCnsLiA",
+              fingerprint: "firefox",
+              serverName: "",
+            },
+          },
+          tcpSettings: { acceptProxyProtocol: false, header: { type: "none" } },
+        };
+      }
       // Create Setting Object
       // Client Is Disabled And it's Just for creating inbound
       if (protocol === Protocol.VMESS) {
@@ -311,7 +337,31 @@ export class X3UI {
     }
   }
 
-  public generateLink(
+  public realityGenerateLink(
+    client: IClient,
+    host: string,
+    port: number,
+    pbk: string,
+    sni: string,
+    sid: string,
+    fpi: string
+  ) {
+    return this.vlessRealityGenerator(client, host, port, pbk, sni, sid, fpi);
+  }
+
+  private vlessRealityGenerator(
+    client: IClient,
+    host: string,
+    port: number,
+    pbk: string,
+    sni: string,
+    sid: string,
+    fpi: string
+  ) {
+    return `vless://${client.id}@${host}:${port}?type=tcp&security=reality&fp=${fpi}&pbk=${pbk}&sni=${sni}&sid=${sid}#${this.remark}`;
+  }
+
+  public wsGenerateLink(
     client: IClient,
     protocol: Protocol,
     host: string,
@@ -321,12 +371,26 @@ export class X3UI {
     requestHost?: string
   ) {
     if (protocol === Protocol.VLESS)
-      return this.vlessGenerator(client, host, port, path, hasTls, requestHost);
+      return this.vlessWSGenerator(
+        client,
+        host,
+        port,
+        path,
+        hasTls,
+        requestHost
+      );
     else
-      return this.vmessGenerator(client, host, port, path, hasTls, requestHost);
+      return this.vmessWSGenerator(
+        client,
+        host,
+        port,
+        path,
+        hasTls,
+        requestHost
+      );
   }
 
-  private vlessGenerator(
+  private vlessWSGenerator(
     client: IClient,
     host: string,
     port: number,
@@ -339,7 +403,7 @@ export class X3UI {
     }#${this.remark}`;
   }
 
-  private vmessGenerator(
+  private vmessWSGenerator(
     client: IClient,
     host: string,
     port: number,
@@ -438,4 +502,9 @@ export interface IClient {
 export enum Protocol {
   VMESS = "vmess",
   VLESS = "vless",
+}
+
+enum StreamType {
+  ws,
+  reality,
 }
