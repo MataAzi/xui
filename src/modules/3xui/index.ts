@@ -172,7 +172,7 @@ export class X3UI {
 
       // Post inbound data formUrlEncoded
       const result = <IResult>(
-        (await this.axios.post("/xui/inbound/add", formUrlEncoded(inbound)))
+        (await this.axios.post("/panel/inbound/add", formUrlEncoded(inbound)))
           .data
       );
       // Check If Result is success
@@ -185,7 +185,7 @@ export class X3UI {
   public async getAllInbounds() {
     // Get All Inbounds
     const result = <IInboundList>(
-      (await this.axios.post("/xui/inbound/list")).data
+      (await this.axios.post("/panel/inbound/list")).data
     );
     if (!result.success) return { ok: false };
     // Return All inbounds
@@ -222,7 +222,7 @@ export class X3UI {
       const encoded = formUrlEncoded(data);
       // post data
       const result = <IResult>(
-        (await this.axios.post("/xui/inbound/addClient", encoded)).data
+        (await this.axios.post("/panel/inbound/addClient", encoded)).data
       );
       if (result.success) return { ok: true };
       return { ok: false };
@@ -262,7 +262,7 @@ export class X3UI {
       const result = <IResult>(
         (
           await this.axios.post(
-            `/xui/inbound/updateClient/${clientId}`,
+            `/panel/inbound/updateClient/${clientId}`,
             encodedData
           )
         ).data
@@ -277,7 +277,7 @@ export class X3UI {
   public async deleteClient(inboundId: number, uuid: string) {
     try {
       const result = await this.axios.post(
-        `/xui/inbound/${inboundId}/delClient/${uuid}`
+        `/panel/inbound/${inboundId}/delClient/${uuid}`
       );
       if (result.data.success) return { ok: true };
       else return { ok: false, msg: "Unspecific error" };
