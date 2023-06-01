@@ -337,6 +337,13 @@ export class X3UI {
     }
   }
 
+  public async getInbound(inboundId: number) {
+    const inbounds = await this.getAllInbounds();
+    const inbound = inbounds.data?.find((x) => x.id === inboundId);
+    const stream = JSON.parse(inbound!.streamSettings!);
+    return stream;
+  }
+
   public realityGenerateLink(
     client: IClient,
     host: string,
