@@ -504,7 +504,7 @@ export enum Protocol {
   VLESS = "vless",
 }
 
-enum StreamType {
+export enum StreamType {
   ws,
   reality,
 }
