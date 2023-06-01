@@ -1,5 +1,5 @@
 import { Protocol } from "..";
-import { ISetting, IStreamSetting } from "./ISetting";
+import { ISetting } from "./ISetting";
 
 export interface IAddInbound {
   up: number;
